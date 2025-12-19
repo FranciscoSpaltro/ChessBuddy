@@ -6,11 +6,13 @@
 
 class Pawn : public Piece {
 public:
-    explicit Pawn(PieceColor color);
+    explicit Pawn(pieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 
     char symbol() const override;
+
+    bool canJump() const override;
 };
 
 #endif

@@ -1,6 +1,8 @@
 #include "King.h"
 #include <stdlib.h>
 
+King::King(pieceColor color) : Piece(color) {}
+
 bool King::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
     // La validacion de si el rey queda en jaque la hace Game
@@ -16,5 +18,9 @@ bool King::isValidMove(const Board& board, const movement& move) const {
 }
 
 char King::symbol() const {
-    return (getColor() == PieceColor::white) ? 'K' : 'k';
+    return (getColor() == pieceColor::white) ? 'K' : 'k';
+}
+
+bool King::canJump() const {
+    return false;
 }

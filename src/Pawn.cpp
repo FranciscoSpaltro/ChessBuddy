@@ -1,16 +1,20 @@
 #include "Pawn.h"
 #include <stdlib.h>
 
+Pawn::Pawn(pieceColor color) : Piece(color) {}
+
 bool Pawn::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
     int deltaRow = move.toRow - move.fromRow;
     int deltaCol = move.toColumn - move.fromColumn;
 
-    int direction = (getColor() == PieceColor::white) ? -1 : 1;
+    int direction = (getColor() == pieceColor::white) ? -1 : 1;
+
+    
     if (deltaRow != direction)
         return false;
-
+    
     if(deltaCol == 0){   // Movimiento de avance
         return board.checkEmpty(move.toRow, move.toColumn);
 
@@ -23,5 +27,9 @@ bool Pawn::isValidMove(const Board& board, const movement& move) const {
 }
 
 char Pawn::symbol() const {
-    return (getColor() == PieceColor::white) ? 'P' : 'p';
+    return (getColor() == pieceColor::white) ? 'P' : 'p';
+}
+
+bool Pawn::canJump() const {
+    return false;
 }

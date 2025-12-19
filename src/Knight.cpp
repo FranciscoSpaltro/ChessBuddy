@@ -1,6 +1,8 @@
 #include "Knight.h"
 #include <stdlib.h>
 
+Knight::Knight(pieceColor color) : Piece(color) {}
+
 bool Knight::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
@@ -14,5 +16,9 @@ bool Knight::isValidMove(const Board& board, const movement& move) const {
 }
 
 char Knight::symbol() const {
-    return (getColor() == PieceColor::white) ? 'N' : 'n';
+    return (getColor() == pieceColor::white) ? 'N' : 'n';
+}
+
+bool Knight::canJump() const {
+    return true;
 }

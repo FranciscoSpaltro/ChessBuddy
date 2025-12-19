@@ -1,6 +1,8 @@
 #include "Bishop.h"
 #include <stdlib.h>
 
+Bishop::Bishop(pieceColor color) : Piece(color) {}
+
 bool Bishop::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
@@ -10,12 +12,13 @@ bool Bishop::isValidMove(const Board& board, const movement& move) const {
     if(abs(deltaRow) != abs(deltaCol))  // Movimiento no diagonal
         return false;
 
-    if(!board.isPathClear(move))
-        return false;
-
     return true;
 }
 
 char Bishop::symbol() const {
-    return (getColor() == PieceColor::white) ? 'B' : 'b';
+    return (getColor() == pieceColor::white) ? 'B' : 'b';
+}
+
+bool Bishop::canJump() const {
+    return false;
 }

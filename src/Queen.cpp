@@ -1,6 +1,8 @@
 #include "Queen.h"
 #include <stdlib.h>
 
+Queen::Queen(pieceColor color) : Piece(color) {}
+
 bool Queen::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
@@ -10,12 +12,13 @@ bool Queen::isValidMove(const Board& board, const movement& move) const {
     if((abs(deltaRow) != abs(deltaCol)) && (deltaRow != 0 && deltaCol != 0))  // Movimiento no puramente diagonal o puramente recto
         return false;
 
-    if(!board.isPathClear(move))
-        return false;
-
     return true;
 }
 
 char Queen::symbol() const {
-    return (getColor() == PieceColor::white) ? 'Q' : 'q';
+    return (getColor() == pieceColor::white) ? 'Q' : 'q';
+}
+
+bool Queen::canJump() const {
+    return false;
 }

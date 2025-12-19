@@ -1,7 +1,7 @@
 #include "piece.h"
 
-Piece::Piece(PieceColor color) : color(color) {}
+Piece::Piece(pieceColor color) : color(color) {}
 
-PieceColor Piece::getColor() const {
+pieceColor Piece::getColor() const {
     return color;
 }

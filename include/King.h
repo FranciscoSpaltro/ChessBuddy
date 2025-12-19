@@ -6,11 +6,13 @@
 
 class King : public Piece {
 public:
-    explicit King(PieceColor color);
+    explicit King(pieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 
     char symbol() const override;
+
+    bool canJump() const override;
 };
 
 #endif

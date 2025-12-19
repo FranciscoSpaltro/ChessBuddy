@@ -3,9 +3,16 @@
 
 #include <array>
 #include <memory>
+#include <iostream>
 
 #include "Piece.h"
 #include "movement.h"
+#include "Pawn.h"
+#include "Rook.h"
+#include "Knight.h"
+#include "Bishop.h"
+#include "King.h"
+#include "Queen.h"
 
 class Board {
 private:
@@ -20,7 +27,7 @@ public:
     bool checkEmpty(int row, int column) const;
     const Piece* getPiece(int row, int column) const;
     bool isPathClear(const movement& move) const;
-    bool Board::isEnemyAt(int row, int col, PieceColor myColor) const;
+    bool isEnemyAt(int row, int col, pieceColor myColor) const;
 
     bool move(const movement& m);
     bool isValidMove(const movement& m) const;

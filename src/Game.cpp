@@ -3,7 +3,10 @@
 Game::Game(void) : currentPlayer(pieceColor::white) {}
 
 bool Game::play(const movement& m){
-    if(!(this -> board.move(m, this -> currentPlayer)))
+    if(this -> board.getPiece(m.fromRow, m.fromColumn)->getColor() != currentPlayer)
+        return false;
+        
+    if(!(this -> board.move(m)))
         return false;
 
     this -> currentPlayer = (this -> currentPlayer == pieceColor::white ? pieceColor::black : pieceColor::white);

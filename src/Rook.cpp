@@ -1,6 +1,8 @@
 #include "Rook.h"
 #include <stdlib.h>
 
+Rook::Rook(pieceColor color) : Piece(color) {}
+
 bool Rook::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
@@ -10,12 +12,13 @@ bool Rook::isValidMove(const Board& board, const movement& move) const {
     if(deltaRow != 0 && deltaCol != 0)  // Movimiento no recto
         return false;
 
-    if(!board.isPathClear(move))
-        return false;
-
     return true;
 }
 
 char Rook::symbol() const {
-    return (getColor() == PieceColor::white) ? 'R' : 'r';
+    return (getColor() == pieceColor::white) ? 'R' : 'r';
+}
+
+bool Rook::canJump() const {
+    return false;
 }
