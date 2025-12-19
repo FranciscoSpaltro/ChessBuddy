@@ -13,6 +13,8 @@ public:
     char symbol() const override;
 
     bool canJump() const override;
+
+    SpecialMove getSpecialMove(const movement& m) const override;
 };
 
 #endif

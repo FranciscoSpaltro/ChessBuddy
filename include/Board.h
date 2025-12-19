@@ -14,12 +14,14 @@
 #include "King.h"
 #include "Queen.h"
 
+
 class Board {
 private:
     std::array<std::unique_ptr<Piece>, 64> board;
 
     int index(int row, int column) const;
     void initialize();
+    bool isCastling(movement& m);
 
 public:
     Board();

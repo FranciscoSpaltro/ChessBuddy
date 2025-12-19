@@ -11,6 +11,9 @@ bool King::isValidMove(const Board& board, const movement& move) const {
     int deltaRow = move.toRow - move.fromRow;
     int deltaCol = move.toColumn - move.fromColumn;
 
+    if(deltaRow == 0 && abs(deltaCol) == 2)     // Posible enroque
+        return true;
+
     if (std::max(abs(deltaRow), abs(deltaCol)) != 1)
         return false;
 
@@ -23,4 +26,15 @@ char King::symbol() const {
 
 bool King::canJump() const {
     return false;
+}
+
+SpecialMove King::getSpecialMove(const movement& m) const {
+    // ENROQUE: aun no se ha movido y se desplaza desde el origen 2 columnas de distancia en la misma fila
+    if(hasMoved())
+        return SpecialMove::None;
+
+    if(m.fromRow == m.toRow && abs(m.toColumn - m.fromColumn) == 2)
+        return SpecialMove::Castling;
+    
+    return SpecialMove::None;
 }

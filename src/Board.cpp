@@ -1,5 +1,28 @@
 #include "Board.h"
 
+bool Board::isCastling(movement& m){
+    bool kingSide = (m.toColumn > m.fromColumn);
+    int rookCol = kingSide ? 7 : 0;
+    int row = m.fromRow;
+
+    Piece* rookCandidate = board[index(row, rookCol)].get();
+    if (!rookCandidate)
+        return false;
+
+    Rook* rook = dynamic_cast<Rook*>(rookCandidate);        // Pregunto en tiempo de ejecución si es una torre
+    
+    if (!rook)
+        return false;
+
+    if(rook->hasMoved())
+        return false;
+
+    if(!isPathClear(m))
+        return false;
+
+    return true;
+}
+
 bool Board::checkEmpty(int row, int column) const{
     if (!this -> getPiece(row, column))
         return true;
@@ -57,7 +80,6 @@ const Piece* Board::getPiece(int row, int column) const {
 
 bool Board::isValidMove(const movement& m) const {
     const Piece* piece = getPiece(m.fromRow, m.fromColumn);
-    bool capture = false;
 
     if (!piece)         // Si no seleccione una pieza
         return false;
@@ -65,8 +87,6 @@ bool Board::isValidMove(const movement& m) const {
     if (const Piece* target = getPiece(m.toRow, m.toColumn)) {
         if (target->getColor() == piece->getColor())            // Estaba ocupada por mi
             return false;
-        else
-            capture = true;
     }
     
     int dRow = abs(m.toRow - m.fromRow);
@@ -112,8 +132,26 @@ bool Board::move(const movement& m) {
         return false;
     }
 
+    Piece * originPiece = board[index(m.fromRow, m.fromColumn)].get();
+
+    // Detecto posible enroque
+    switch (originPiece->getSpecialMove(m))
+    {
+        case SpecialMove::Castling:
+            std::swap(board[index(m.fromRow, m.fromColumn)], board[index(m.toRow, m.toColumn)]);
+            return true;
+        
+        default:
+            break;
+    }
+
+
+    if(!originPiece->hasMoved())
+        originPiece->setMoved();
+
     board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
     board[index(m.fromRow, m.fromColumn)] = nullptr;
+
     return true;
 }
 
