@@ -1,16 +1,28 @@
 #include <iostream>
 #include "Game.h"
 
-int main(void){
+int main() {
     Game game;
-    //game.print();
 
-    movement movimiento1 = {6,1,5,1};
-    game.play(movimiento1);
-    //std::cout << std::endl << "NUEVO" << std::endl;
-    game.print();
-    movement movimiento2 = {1,1,2,1};
-    std::cout << std::endl << std::endl << std::endl;
-    game.play(movimiento2);
-    game.print();
+    while (true) {
+        game.print();
+
+        std::cout << "\nMovimiento (fromRow fromCol toRow toCol), o -1 para salir:\n> ";
+
+        int fr;
+        std::cin >> fr;
+        if (!std::cin || fr == -1)
+            break;
+
+        int fc, tr, tc;
+        std::cin >> fc >> tr >> tc;
+
+        movement m { fr, fc, tr, tc };
+
+        if (!game.play(m)) {
+            std::cout << "Movimiento invalido\n";
+        }
+    }
+
+    return 0;
 }

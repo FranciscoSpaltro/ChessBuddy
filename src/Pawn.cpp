@@ -10,10 +10,16 @@ bool Pawn::isValidMove(const Board& board, const movement& move) const {
     int deltaCol = move.toColumn - move.fromColumn;
 
     int direction = (getColor() == pieceColor::white) ? -1 : 1;
-
     
-    if (deltaRow != direction)
-        return false;
+    if (deltaRow != direction){
+        // Evaluo primer movimiento
+        int startRow = (getColor() == pieceColor::white) ? 6 : 1;
+        if (move.fromRow == startRow && deltaRow == 2 * direction) {
+            int midRow = move.fromRow + direction;
+            return board.checkEmpty(midRow, move.fromColumn) && board.checkEmpty(move.toRow, move.toColumn);
+        } else
+            return false;
+    }
     
     if(deltaCol == 0){   // Movimiento de avance
         return board.checkEmpty(move.toRow, move.toColumn);

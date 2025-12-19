@@ -77,16 +77,7 @@ bool Board::isValidMove(const movement& m) const {
         if(!isPathClear(m))
             return false;
 
-    if(piece->isValidMove(*this, m)){
-        if(capture){
-            // Sabemos que es captura
-            return true;
-        }
-
-        return true;
-    }
-
-    return false;
+    return piece->isValidMove(*this, m);
 }
 
 bool Board::isEnemyAt(int row, int col, pieceColor myColor) const {
@@ -122,6 +113,7 @@ bool Board::move(const movement& m) {
     }
 
     board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
+    board[index(m.fromRow, m.fromColumn)] = nullptr;
     return true;
 }
 
