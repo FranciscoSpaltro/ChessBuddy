@@ -1,33 +1,26 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-static const char* pieceNames[3][7] = {
-    /* none  */ { "  ", "  ", "  ", "  ", "  ", "  ", "  " },
-    /* black */ { "  ", "k ", "q ", "b ", "n ", "r ", "p " },
-    /* white */ { "  ", "K ", "Q ", "B ", "N ", "R ", "P " }
+#include "movement.h"
+
+enum class PieceColor {
+    white,
+    black
 };
 
-enum class pieceType {
-    none,
-    king,       // rey 
-    queen,      // reina 
-    bishop,     // alfil
-    knight,     // caballo
-    rook,       // torre
-    pawn        // peon
+class Board;
+
+class Piece {
+    protected:
+        PieceColor color;
+
+    public:
+        explicit Piece(PieceColor color);
+        virtual ~Piece() = default;
+
+        virtual char symbol() const = 0;
+        PieceColor getColor() const;
+        virtual bool isValidMove(const Board& board, const movement& move) const = 0;
 };
 
-enum class pieceColor {
-    none,
-    black,
-    white
-};
-
-
-typedef struct {
-    pieceType piece;
-    pieceColor color;
-} piece;
-
-
-#endif // PIECE_H
+#endif
