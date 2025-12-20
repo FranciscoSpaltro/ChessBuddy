@@ -1,9 +1,13 @@
 #include "piece.h"
 
-Piece::Piece(pieceColor color) : color(color), moved(false) {}
+Piece::Piece(PieceColor color) : color(color), moved(false) {}
 
-pieceColor Piece::getColor() const {
+PieceColor Piece::getColor() const {
     return color;
+}
+
+PieceType Piece::getType() const {
+    return type;
 }
 
 bool Piece::hasMoved() const {

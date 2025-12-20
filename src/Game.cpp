@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game(void) : currentPlayer(pieceColor::white) {}
+Game::Game(void) : currentPlayer(PieceColor::white) {}
 
 bool Game::play(const movement& m){
     if(this -> board.getPiece(m.fromRow, m.fromColumn)->getColor() != currentPlayer)
@@ -9,7 +9,7 @@ bool Game::play(const movement& m){
     if(!(this -> board.move(m)))
         return false;
 
-    this -> currentPlayer = (this -> currentPlayer == pieceColor::white ? pieceColor::black : pieceColor::white);
+    this -> currentPlayer = (this -> currentPlayer == PieceColor::white ? PieceColor::black : PieceColor::white);
     return true;
 }
 

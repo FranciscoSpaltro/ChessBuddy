@@ -6,7 +6,7 @@
 
 class Rook : public Piece {
 public:
-    explicit Rook(pieceColor color);
+    explicit Rook(PieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 

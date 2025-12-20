@@ -6,7 +6,7 @@
 
 class Knight : public Piece {
 public:
-    explicit Knight(pieceColor color);
+    explicit Knight(PieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 

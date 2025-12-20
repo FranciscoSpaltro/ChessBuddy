@@ -14,6 +14,10 @@
 #include "King.h"
 #include "Queen.h"
 
+struct Position {
+    int row;
+    int col;
+};
 
 class Board {
 private:
@@ -21,7 +25,8 @@ private:
 
     int index(int row, int column) const;
     void initialize();
-    bool isCastling(movement& m);
+    bool isCastling(const movement& m);
+    Position findKing(PieceColor color) const;
 
 public:
     Board();
@@ -29,10 +34,12 @@ public:
     bool checkEmpty(int row, int column) const;
     const Piece* getPiece(int row, int column) const;
     bool isPathClear(const movement& move) const;
-    bool isEnemyAt(int row, int col, pieceColor myColor) const;
+    bool isEnemyAt(int row, int col, PieceColor myColor) const;
 
     bool move(const movement& m);
     bool isValidMove(const movement& m) const;
+    bool isSquareAttacked(const int targetRow, const int targetColumn, PieceColor playerAttacked) const;
+    bool isKingInCheck(PieceColor color) const;
 
     void printBoard() const;
 };

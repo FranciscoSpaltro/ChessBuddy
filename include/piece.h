@@ -3,7 +3,7 @@
 
 #include "movement.h"
 
-enum class pieceColor {
+enum class PieceColor {
     white,
     black
 };
@@ -15,18 +15,29 @@ enum class SpecialMove {
     Promotion
 };
 
+enum class PieceType {
+    King,
+    Queen,
+    Bishop,
+    Knight,
+    Rook,
+    Pawn
+};
+
 class Board;
 
 class Piece {
     protected:
-        pieceColor color;
+        PieceType type;
+        PieceColor color;
         bool moved;
 
     public:
-        explicit Piece(pieceColor color);
+        explicit Piece(PieceColor color);
         virtual ~Piece() = default;
 
-        pieceColor getColor() const;
+        PieceColor getColor() const;
+        PieceType getType() const;
         bool hasMoved() const;
         bool setMoved();
         virtual char symbol() const = 0;

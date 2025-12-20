@@ -1,7 +1,9 @@
 #include "Queen.h"
 #include <stdlib.h>
 
-Queen::Queen(pieceColor color) : Piece(color) {}
+Queen::Queen(PieceColor color) : Piece(color) {
+    type = PieceType::Queen;
+}
 
 bool Queen::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
@@ -16,7 +18,7 @@ bool Queen::isValidMove(const Board& board, const movement& move) const {
 }
 
 char Queen::symbol() const {
-    return (getColor() == pieceColor::white) ? 'Q' : 'q';
+    return (getColor() == PieceColor::white) ? 'Q' : 'q';
 }
 
 bool Queen::canJump() const {

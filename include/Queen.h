@@ -6,7 +6,7 @@
 
 class Queen : public Piece {
 public:
-    explicit Queen(pieceColor color);
+    explicit Queen(PieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 

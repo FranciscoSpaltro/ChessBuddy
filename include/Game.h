@@ -8,7 +8,7 @@
 class Game {
 private:
     Board board;
-    pieceColor currentPlayer;
+    PieceColor currentPlayer;
 
 public:
     Game();

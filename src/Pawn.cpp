@@ -1,7 +1,9 @@
 #include "Pawn.h"
 #include <stdlib.h>
 
-Pawn::Pawn(pieceColor color) : Piece(color) {}
+Pawn::Pawn(PieceColor color) : Piece(color) {
+    type = PieceType::Pawn;
+}
 
 bool Pawn::isValidMove(const Board& board, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
@@ -9,11 +11,11 @@ bool Pawn::isValidMove(const Board& board, const movement& move) const {
     int deltaRow = move.toRow - move.fromRow;
     int deltaCol = move.toColumn - move.fromColumn;
 
-    int direction = (getColor() == pieceColor::white) ? -1 : 1;
+    int direction = (getColor() == PieceColor::white) ? -1 : 1;
     
     if (deltaRow != direction){
         // Evaluo primer movimiento
-        int startRow = (getColor() == pieceColor::white) ? 6 : 1;
+        int startRow = (getColor() == PieceColor::white) ? 6 : 1;
         if (move.fromRow == startRow && deltaRow == 2 * direction) {
             int midRow = move.fromRow + direction;
             return board.checkEmpty(midRow, move.fromColumn) && board.checkEmpty(move.toRow, move.toColumn);
@@ -33,9 +35,20 @@ bool Pawn::isValidMove(const Board& board, const movement& move) const {
 }
 
 char Pawn::symbol() const {
-    return (getColor() == pieceColor::white) ? 'P' : 'p';
+    return (getColor() == PieceColor::white) ? 'P' : 'p';
 }
 
 bool Pawn::canJump() const {
     return false;
+}
+
+SpecialMove Pawn::getSpecialMove(const movement& m) const {
+    int promotionRow = getColor() == PieceColor::white ? 0 : 7;
+
+    if(m.toRow == promotionRow){
+        return SpecialMove::Promotion;
+    }
+
+    return SpecialMove::None;
+
 }

@@ -6,7 +6,7 @@
 
 class Bishop : public Piece {
 public:
-    explicit Bishop(pieceColor color);
+    explicit Bishop(PieceColor color);
 
     bool isValidMove(const Board& board, const movement& move) const override;
 
