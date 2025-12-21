@@ -1,5 +1,9 @@
 #include "Board.h"
 
+PieceColor oppositPlayer(PieceColor actualPlayer){
+    return actualPlayer == PieceColor::white ? PieceColor::black : PieceColor::white;
+}
+
 bool Board::isCastling(const movement& m){
     if(board[index(m.fromRow, m.fromColumn)] -> hasMoved())
         return false;
@@ -7,6 +11,7 @@ bool Board::isCastling(const movement& m){
     bool kingSide = (m.toColumn > m.fromColumn);    // Si es positivo, se mueve a la derecha
     int rookCol = kingSide ? 7 : 0;                 // Si se mueve a la derecha, la columna de la torre es 7
     int row = m.fromRow;
+    PieceColor color = board[index(m.fromRow, m.fromColumn)]->getColor();
 
     Piece* rookCandidate = board[index(row, rookCol)].get();
     if (!rookCandidate)
@@ -18,8 +23,19 @@ bool Board::isCastling(const movement& m){
     if(rookCandidate->hasMoved())
         return false;
 
-    movement aux = {m.fromRow, m.fromColumn, m.fromRow, kingSide ? rookCol - 1 : rookCol + 1};
+    int direction = kingSide ? +1 : -1;
+
+    movement aux = {m.fromRow, m.fromColumn, m.fromRow, rookCol};
     if(!isPathClear(aux))
+        return false;
+
+    if(isSquareAttacked(m.fromRow, m.fromColumn, oppositPlayer(color)))
+        return false;
+
+    if(isSquareAttacked(m.fromRow, m.fromColumn + direction, oppositPlayer(color)))
+        return false;
+
+    if(isSquareAttacked(m.fromRow, m.fromColumn + 2 * direction, oppositPlayer(color)))
         return false;
 
     return true;
@@ -135,6 +151,7 @@ bool Board::move(const movement& m) {
     }
 
     Piece * originPiece = board[index(m.fromRow, m.fromColumn)].get();
+    PieceColor color = originPiece->getColor();
 
     // Detecto posible enroque
     switch (originPiece->getSpecialMove(m))
@@ -150,13 +167,14 @@ bool Board::move(const movement& m) {
 
             // 1) mover rey
             board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
-            board[index(m.toRow, m.toColumn)] -> setMoved();
+            board[index(m.toRow, m.toColumn)] -> setMoved(true);
             board[index(m.fromRow, m.fromColumn)] = nullptr;
 
             // 2) mover torre
             board[index(row, rookToCol)] = std::move(board[index(row, rookFromCol)]);
-            board[index(row, rookToCol)] -> setMoved();
+            board[index(row, rookToCol)] -> setMoved(true);
             board[index(row, rookFromCol)] = nullptr;
+            
             return true;
         }
 
@@ -169,13 +187,20 @@ bool Board::move(const movement& m) {
         default:
             break;
     }
-
-
-    if(!originPiece->hasMoved())
-        originPiece->setMoved();
-
+    
+    std::unique_ptr<Piece> captured = std::move(board[index(m.toRow, m.toColumn)]);
     board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
     board[index(m.fromRow, m.fromColumn)] = nullptr;
+
+    if(isKingInCheck(color)){
+        board[index(m.fromRow, m.fromColumn)] = std::move(board[index(m.toRow, m.toColumn)]);
+        board[index(m.toRow, m.toColumn)] = std::move(captured);
+        std::cout << "KING IN CHECK!" << std::endl;
+        return false;
+    }
+
+    if(!originPiece->hasMoved())
+        originPiece->setMoved(true);
 
     return true;
 }
@@ -384,5 +409,5 @@ Position Board::findKing(PieceColor color) const{
 
 bool Board::isKingInCheck(PieceColor color) const {
     Position k = findKing(color);
-    return isSquareAttacked(k.row, k.col, color == PieceColor::white ? PieceColor::black : PieceColor::white);
+    return isSquareAttacked(k.row, k.col, oppositPlayer(color));
 }

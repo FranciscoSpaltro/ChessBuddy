@@ -14,8 +14,8 @@ bool Piece::hasMoved() const {
     return moved;
 }
 
-bool Piece::setMoved() {
-    moved = true;
+bool Piece::setMoved(bool option) {
+    moved = option;
     return moved;
 }
 

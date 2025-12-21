@@ -39,7 +39,7 @@ class Piece {
         PieceColor getColor() const;
         PieceType getType() const;
         bool hasMoved() const;
-        bool setMoved();
+        bool setMoved(bool);
         virtual char symbol() const = 0;
         virtual bool isValidMove(const Board& board, const movement& move) const = 0;
         virtual bool canJump() const = 0;
