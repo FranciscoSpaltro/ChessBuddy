@@ -19,6 +19,11 @@ struct Position {
     int col;
 };
 
+struct MoveRecord {
+    int fromRow, fromCol, toRow, toCol;
+    std::unique_ptr<Piece> captured;
+};
+
 class Board {
 private:
     std::array<std::unique_ptr<Piece>, 64> board;
@@ -27,6 +32,8 @@ private:
     void initialize();
     bool isCastling(const movement& m);
     Position findKing(PieceColor color) const;
+    MoveRecord applyMove(const movement& m);
+    void undoMove(MoveRecord& r);
 
 public:
     Board();

@@ -4,7 +4,27 @@ PieceColor oppositPlayer(PieceColor actualPlayer){
     return actualPlayer == PieceColor::white ? PieceColor::black : PieceColor::white;
 }
 
+MoveRecord Board::applyMove(const movement& m){
+    MoveRecord r{m.fromRow, m.fromColumn, m.toRow, m.toColumn};
+    
+    r.captured = std::move(board[index(m.toRow, m.toColumn)]);
+
+    board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
+    board[index(m.fromRow, m.fromColumn)] = nullptr;
+
+    return r;
+}
+
+void Board::undoMove(MoveRecord& r){
+    board[index(r.fromRow, r.fromCol)] = std::move(board[index(r.toRow, r.toCol)]);
+    board[index(r.toRow, r.toCol)] = std::move(r.captured);
+}
+
 bool Board::isCastling(const movement& m){
+    if(isKingInCheck(board[index(m.fromRow, m.fromColumn)] -> getColor())){
+        return false;
+    }
+
     if(board[index(m.fromRow, m.fromColumn)] -> hasMoved())
         return false;
 
@@ -157,30 +177,40 @@ bool Board::move(const movement& m) {
     switch (originPiece->getSpecialMove(m))
     {
         case SpecialMove::Castling:{
-            if(!isCastling(m))
+            if(!isCastling(m))  // Chequea validez de Castling (getSpecialMove solo verifica si el rey quiere ejcutar un Castling)
                 break;
+
             bool kingSide = (m.toColumn > m.fromColumn);
 
             int row = m.fromRow;
             int rookFromCol = kingSide ? 7 : 0;
             int rookToCol   = kingSide ? (m.fromColumn + 1) : (m.fromColumn - 1);
 
-            // 1) mover rey
-            board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
-            board[index(m.toRow, m.toColumn)] -> setMoved(true);
-            board[index(m.fromRow, m.fromColumn)] = nullptr;
+            MoveRecord rKing = applyMove(m);
+            movement rookMove{row, rookFromCol, row, rookToCol};
+            MoveRecord rRook = applyMove(rookMove);
 
-            // 2) mover torre
-            board[index(row, rookToCol)] = std::move(board[index(row, rookFromCol)]);
+            if(isKingInCheck(color)){
+                undoMove(rRook);
+                undoMove(rKing);
+                return false;
+            }
+
+            board[index(m.toRow, m.toColumn)] -> setMoved(true);
             board[index(row, rookToCol)] -> setMoved(true);
-            board[index(row, rookFromCol)] = nullptr;
             
             return true;
         }
 
         case SpecialMove::Promotion:{
-            board[index(m.toRow, m.toColumn)] = std::make_unique<Queen>(board[index(m.fromRow, m.fromColumn)] -> getColor());
-            board[index(m.fromRow, m.fromColumn)] = nullptr;
+            MoveRecord r = applyMove(m);
+
+            if(isKingInCheck(color)){
+                undoMove(r);
+                return false;
+            }
+
+            board[index(m.toRow, m.toColumn)] = std::make_unique<Queen>(color);
             return true;
         }
 
@@ -188,19 +218,13 @@ bool Board::move(const movement& m) {
             break;
     }
     
-    std::unique_ptr<Piece> captured = std::move(board[index(m.toRow, m.toColumn)]);
-    board[index(m.toRow, m.toColumn)] = std::move(board[index(m.fromRow, m.fromColumn)]);
-    board[index(m.fromRow, m.fromColumn)] = nullptr;
-
+    MoveRecord r = applyMove(m);
     if(isKingInCheck(color)){
-        board[index(m.fromRow, m.fromColumn)] = std::move(board[index(m.toRow, m.toColumn)]);
-        board[index(m.toRow, m.toColumn)] = std::move(captured);
-        std::cout << "KING IN CHECK!" << std::endl;
+        undoMove(r);
         return false;
     }
 
-    if(!originPiece->hasMoved())
-        originPiece->setMoved(true);
+    board[index(m.toRow, m.toColumn)]->setMoved(true);
 
     return true;
 }
