@@ -14,11 +14,10 @@ public:
     Game();
     bool play(const movement& m);
     void print() const;
-    
-    #ifdef TEST_MODE
-        Board& getBoard() { return board; }
-        const Board& getBoard() const { return board; }
-    #endif
+    const Board& getBoard() const { return board; } // TO CHANGE!
+    Board& getBoard() { return board; }             // TO CHANGE!
+    PieceColor getCurrentPlayer(void) const;
+
 };
 
 

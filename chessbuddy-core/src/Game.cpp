@@ -16,6 +16,10 @@ bool Game::play(const movement& m){
     return true;
 }
 
+PieceColor Game::getCurrentPlayer(void) const{
+    return currentPlayer;
+}
+
 void Game::print() const {
     this -> board.printBoard();
 }

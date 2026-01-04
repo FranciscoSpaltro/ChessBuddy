@@ -50,3 +50,6 @@ The project is functional and actively evolving. Future improvements may include
 The project can be built using a standard C++ compiler (e.g. `g++`) without external dependencies.
 
 ---
+
+## Credits
+* Chess piece images by Cburnett (CC BY-SA 3.0), via Wikimedia Commons.
