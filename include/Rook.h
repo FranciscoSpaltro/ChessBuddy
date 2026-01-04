@@ -13,6 +13,8 @@ public:
     char symbol() const override;
 
     bool canJump() const override;
+
+    std::vector<movement> pseudoLegalMoves(int r, int c, const Board& board) const override;
 };
 
 #endif

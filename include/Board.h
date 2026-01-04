@@ -54,10 +54,14 @@ public:
     bool isPathClear(const movement& move) const;
     bool isEnemyAt(int row, int col, PieceColor myColor) const;
 
+    const EnPassantTarget * getEnPassantTarget(void) const;
+
     bool move(const movement& m);
     bool isValidMove(const movement& m) const;
     bool isSquareAttacked(const int targetRow, const int targetColumn, PieceColor playerAttacked) const;
     bool isKingInCheck(PieceColor color) const;
+
+    std::vector<movement> getLegalMoves(int r, int c);
 
     void printBoard() const;
 };

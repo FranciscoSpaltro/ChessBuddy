@@ -24,3 +24,29 @@ char Knight::symbol() const {
 bool Knight::canJump() const {
     return true;
 }
+
+std::vector<movement> Knight::pseudoLegalMoves(int r, int c, const Board& board) const {
+    std::vector<movement> moves;
+    PieceColor color = this->getColor();
+    
+    // 8 saltos del caballo
+    static const int dr[8] = {-2, -2, -1, -1, +1, +1, +2, +2};
+    static const int dc[8] = {-1, +1, -2, +2, -2, +2, -1, +1};
+
+    for (int i = 0; i < 8; ++i) {
+        int nr = r + dr[i];
+        int nc = c + dc[i];
+
+        // 1) fuera de tablero -> no
+        if (nc > 7 || nc < 0 || nr > 7 || nr < 0) continue;
+
+        // 2) si hay una pieza aliada -> no
+        const Piece* target = board.getPiece(nr, nc);
+        if (target && target->getColor() == color) continue;
+
+        // 3) vacío o enemigo -> sí (captura incluida)
+        moves.push_back(movement{r, c, nr, nc});
+    }
+
+    return moves;
+}

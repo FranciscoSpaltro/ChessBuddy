@@ -3,7 +3,10 @@
 Game::Game(void) : currentPlayer(PieceColor::white) {}
 
 bool Game::play(const movement& m){
-    if(this -> board.getPiece(m.fromRow, m.fromColumn)->getColor() != currentPlayer)
+    const Piece* p = board.getPiece(m.fromRow, m.fromColumn);
+    if (!p) return false;                 // no hay pieza
+        
+    if(p->getColor() != currentPlayer)
         return false;
         
     if(!(this -> board.move(m)))
@@ -16,3 +19,4 @@ bool Game::play(const movement& m){
 void Game::print() const {
     this -> board.printBoard();
 }
+

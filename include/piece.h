@@ -2,6 +2,8 @@
 #define PIECE_H
 
 #include "movement.h"
+#include <vector>
+
 
 enum class PieceColor {
     white,
@@ -43,9 +45,8 @@ class Piece {
         virtual char symbol() const = 0;
         virtual bool isValidMove(const Board& board, const movement& move) const = 0;
         virtual bool canJump() const = 0;
-        virtual SpecialMove getSpecialMove(const movement& m) const {
-            return SpecialMove::None;
-        }
+        virtual std::vector<movement> pseudoLegalMoves(int r, int c, const Board& board) const = 0;
+        virtual SpecialMove getSpecialMove(const movement& m) const { return SpecialMove::None; }
 };
 
 #endif

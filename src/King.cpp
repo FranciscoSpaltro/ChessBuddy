@@ -40,3 +40,35 @@ SpecialMove King::getSpecialMove(const movement& m) const {
     
     return SpecialMove::None;
 }
+
+std::vector<movement> King::pseudoLegalMoves(int r, int c, const Board& board) const {
+    std::vector<movement> moves;
+    PieceColor color = this->getColor();
+
+    // combinacion rook + bishop
+    static const int dirs[8][2] = {
+        {0, +1},
+        {0, -1},
+        {+1, 0},
+        {-1, 0},
+        {+1, +1},
+        {-1, -1},
+        {+1, -1},
+        {-1, +1}
+    };
+
+    for (const auto& d : dirs) {
+        int nr = r + d[0];
+        int nc = c + d[1];
+
+        if (nr < 0 || nr > 7 || nc < 0 || nc > 7) continue;
+
+        // si hay aliada, no
+        if (!board.checkEmpty(nr, nc) && !board.isEnemyAt(nr, nc, color)) continue;
+
+        // vacío o enemigo
+        moves.push_back(movement{r, c, nr, nc});
+    }
+
+    return moves;
+}

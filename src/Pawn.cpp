@@ -58,3 +58,33 @@ SpecialMove Pawn::getSpecialMove(const movement& m) const {
     return SpecialMove::None;
 
 }
+
+std::vector<movement> Pawn::pseudoLegalMoves(int r, int c, const Board& board) const {
+    std::vector<movement> moves;
+    PieceColor color = this->getColor();
+
+    // Se mueve 1 adelante, 2 adelante si no se movio, diagonal para capturar si hay del contrario y diagonal vacio si es EnPassant
+    int dir = color == PieceColor::white ? -1 : +1;
+    int nr = r + dir;
+    if (nr >= 0 && nr <= 7){
+        if(board.checkEmpty(nr, c))
+            moves.push_back(movement{r, c, nr, c});
+        
+        if(c + 1 <= 7 && board.isEnemyAt(nr, c + 1, color))
+            moves.push_back(movement{r, c, nr, c + 1});
+
+        if(c - 1 >= 0 && board.isEnemyAt(nr, c - 1, color))
+            moves.push_back(movement{r, c, nr, c - 1});
+    }
+
+    int nr2 = r + 2*dir;
+    if (!this->hasMoved() && nr2 >= 0 && nr2 <= 7 && board.checkEmpty(nr, c) && board.checkEmpty(nr2, c))
+        moves.push_back(movement{r, c, nr2, c});
+
+    const EnPassantTarget* ep = board.getEnPassantTarget();
+
+    if (ep->valid && ep->row == nr && std::abs(ep->col - c) == 1)
+        moves.push_back(movement{r, c, ep->row, ep->col});
+
+    return moves;
+}

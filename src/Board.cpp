@@ -10,6 +10,10 @@ void Board::resetEPStatus(void){
     ep.col = -1;
 }
 
+const EnPassantTarget * Board::getEnPassantTarget(void) const{
+    return &ep;
+}
+
 MoveRecord Board::applyMove(const movement& m){
     MoveRecord r{m.fromRow, m.fromColumn, m.toRow, m.toColumn};
     
@@ -495,4 +499,22 @@ Position Board::findKing(PieceColor color) const{
 bool Board::isKingInCheck(PieceColor color) const {
     Position k = findKing(color);
     return isSquareAttacked(k.row, k.col, oppositPlayer(color));
+}
+
+std::vector<movement> Board::getLegalMoves(int r, int c) {
+    const Piece * originPiece = getPiece(r, c);
+    if(!originPiece) return {};
+
+    PieceColor color = originPiece->getColor();
+    std::vector<movement> plMoves = originPiece->pseudoLegalMoves(r, c, *this);
+    std::vector<movement> legalMoves;
+
+    for (const auto& pl : plMoves){
+        MoveRecord rec = applyMove(pl);
+        if(!isKingInCheck(color))
+            legalMoves.push_back(pl);
+        undoMove(rec);
+    }
+
+    return legalMoves;
 }

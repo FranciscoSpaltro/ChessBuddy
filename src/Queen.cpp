@@ -24,3 +24,43 @@ char Queen::symbol() const {
 bool Queen::canJump() const {
     return false;
 }
+
+std::vector<movement> Queen::pseudoLegalMoves(int r, int c, const Board& board) const {
+    std::vector<movement> moves;
+    PieceColor color = this->getColor();
+
+    // combinacion rook + bishop
+    static const int dirs[8][2] = {
+        {+1, +1},
+        {+1, -1},
+        {-1, +1},
+        {-1, -1},
+        {0, +1},
+        {0, -1},
+        {+1, 0},
+        {-1, 0}
+    };
+
+    for (const auto& d : dirs) {
+        int dr = d[0];
+        int dc = d[1];
+
+        int i = r + dr;
+        int j = c + dc;
+
+        while (i >= 0 && i <= 7 && j >= 0 && j <= 7) {
+            if (board.checkEmpty(i, j)) {
+                moves.push_back(movement{r, c, i, j});
+            } else {
+                if (board.isEnemyAt(i, j, color))
+                    moves.push_back(movement{r, c, i, j});
+                break; // choca con algo (enemigo o aliado)
+            }
+
+            i += dr;
+            j += dc;
+        }
+    }
+
+    return moves;
+}
