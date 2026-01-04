@@ -241,7 +241,7 @@ static int interactiveMode() {
 /**************************************************************************************/
 int main() {
     // 0 = correr tests, 1 = modo interactivo
-    int mode = 0;
+    int mode = 1;
 
     if (mode == 1) {
         return interactiveMode();
