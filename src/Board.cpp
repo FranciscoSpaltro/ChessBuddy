@@ -4,6 +4,12 @@ PieceColor oppositPlayer(PieceColor actualPlayer){
     return actualPlayer == PieceColor::white ? PieceColor::black : PieceColor::white;
 }
 
+void Board::resetEPStatus(void){
+    ep.valid = false;
+    ep.row = -1;
+    ep.col = -1;
+}
+
 MoveRecord Board::applyMove(const movement& m){
     MoveRecord r{m.fromRow, m.fromColumn, m.toRow, m.toColumn};
     
@@ -68,7 +74,7 @@ bool Board::checkEmpty(int row, int column) const{
 }
 
 int Board::index(int row, int column) const {
-return row * 8 + column;
+    return row * 8 + column;
 }
 
 void Board::initialize(void){
@@ -115,6 +121,27 @@ const Piece* Board::getPiece(int row, int column) const {
     return board[index(row, column)].get();
 }
 
+bool Board::isEnPassantMove(const movement& m) const {
+    const Piece* p = getPiece(m.fromRow, m.fromColumn);
+    if (!p || p->getType() != PieceType::Pawn) return false;
+
+    PieceColor color = p->getColor();
+    int direction = (color == PieceColor::white) ? -1 : +1;
+
+    // geometría diagonal 1
+    if (m.toRow - m.fromRow != direction) return false;
+    if (std::abs(m.toColumn - m.fromColumn) != 1) return false;
+
+    // EP cae en casilla vacía que coincide con el target
+    if (!ep.valid) return false;
+    if (m.toRow != ep.row || m.toColumn != ep.col) return false;
+    if (!checkEmpty(m.toRow, m.toColumn)) return false;
+
+    // sólo el rival del que avanzó 2 puede capturar
+    if (color != oppositPlayer(ep.capturablePawnColor)) return false;
+
+    return true;
+}
 
 bool Board::isValidMove(const movement& m) const {
     const Piece* piece = getPiece(m.fromRow, m.fromColumn);
@@ -134,6 +161,9 @@ bool Board::isValidMove(const movement& m) const {
     if (isLongMove && !piece->canJump())
         if(!isPathClear(m))
             return false;
+
+    if(isEnPassantMove(m))
+        return true;
 
     return piece->isValidMove(*this, m);
 }
@@ -166,15 +196,37 @@ void Board::printBoard() const {
 
 
 bool Board::move(const movement& m) {
+    Piece * originPiece = board[index(m.fromRow, m.fromColumn)].get();
+    if(originPiece == nullptr)
+        return false;
+
+    PieceColor color = originPiece->getColor();
+    SpecialMove sm = originPiece->getSpecialMove(m);
+
     if (!isValidMove(m)){
         return false;
     }
 
-    Piece * originPiece = board[index(m.fromRow, m.fromColumn)].get();
-    PieceColor color = originPiece->getColor();
+    if(isEnPassantMove(m)){
+        MoveRecord r = applyMove(m);
+        int directionOpposite = color == PieceColor::white ? +1 : -1;
+        std::unique_ptr<Piece> capturedPawn = std::move(board[index(m.toRow + directionOpposite, m.toColumn)]); // y en el tablero queda nullptr
 
-    // Detecto posible enroque
-    switch (originPiece->getSpecialMove(m))
+        if(isKingInCheck(color)){
+            undoMove(r);
+            board[index(m.toRow + directionOpposite, m.toColumn)] = std::move(capturedPawn);
+            resetEPStatus();
+            return false;
+        }
+        
+        resetEPStatus();
+        board[index(m.toRow, m.toColumn)]->setMoved(true);
+        return true;
+    }
+
+    resetEPStatus();
+
+    switch (sm)
     {
         case SpecialMove::Castling:{
             if(!isCastling(m))  // Chequea validez de Castling (getSpecialMove solo verifica si el rey quiere ejcutar un Castling)
@@ -222,6 +274,15 @@ bool Board::move(const movement& m) {
     if(isKingInCheck(color)){
         undoMove(r);
         return false;
+    }
+
+    if (board[index(m.toRow, m.toColumn)].get()->getType() == PieceType::Pawn) {
+        if (std::abs(m.toRow - m.fromRow) == 2) {
+            ep.valid = true;
+            ep.row = (m.fromRow + m.toRow) / 2;  // casilla "saltada"
+            ep.col = m.fromColumn;
+            ep.capturablePawnColor = color;
+        }
     }
 
     board[index(m.toRow, m.toColumn)]->setMoved(true);

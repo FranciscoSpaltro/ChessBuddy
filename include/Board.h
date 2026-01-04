@@ -24,9 +24,18 @@ struct MoveRecord {
     std::unique_ptr<Piece> captured;
 };
 
+struct EnPassantTarget {
+    bool valid = false;
+    // Casillas a la que se moveria el peon capturador (una fila anterior al movimiento)
+    int row = -1;
+    int col = -1;
+    PieceColor capturablePawnColor; // color del peón que puede ser capturado (el que movió doble)
+};
+
 class Board {
 private:
     std::array<std::unique_ptr<Piece>, 64> board;
+    struct EnPassantTarget ep;
 
     int index(int row, int column) const;
     void initialize();
@@ -34,6 +43,8 @@ private:
     Position findKing(PieceColor color) const;
     MoveRecord applyMove(const movement& m);
     void undoMove(MoveRecord& r);
+    bool isEnPassantMove(const movement& m) const;
+    void resetEPStatus(void);
 
 public:
     Board();

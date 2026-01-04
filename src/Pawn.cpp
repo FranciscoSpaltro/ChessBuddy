@@ -49,6 +49,12 @@ SpecialMove Pawn::getSpecialMove(const movement& m) const {
         return SpecialMove::Promotion;
     }
 
+    // Posible passant (forma geometrica del movimiento -> diagonal)
+    int dir = getColor() == PieceColor::white ? -1 : +1;
+    if(m.fromRow == m.toRow + dir && std::abs(m.fromColumn - m.toColumn) == 1){
+        return SpecialMove::EnPassant;
+    }
+    
     return SpecialMove::None;
 
 }

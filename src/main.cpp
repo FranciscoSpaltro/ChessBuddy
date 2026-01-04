@@ -3,7 +3,7 @@
 
 int main() {
     Game game;
-    int ejecucion = 4;
+    int ejecucion = 5;
     // 1: enroque, 2: promocion, 3: while, 4: movimiento que deja en jaque
     
     if(ejecucion == 1){
@@ -115,6 +115,23 @@ int main() {
         game.play(m15);
         game.play(m16);
 
+        game.print();
+    } else if (ejecucion == 5){
+        movement m1{6, 0, 4, 0};
+        movement m2{1, 3, 3, 3};
+        movement m3{4, 0, 3, 0};
+        movement m4{3, 3, 4, 3};
+        movement m5{6, 2, 4, 2};
+        movement m6{4, 3, 5, 2};
+
+        game.play(m1);
+        game.play(m2);
+        game.play(m3);
+        game.play(m4);
+        game.play(m5);
+        game.print();
+        std::cout << std::endl << std::endl;
+        game.play(m6);
         game.print();
     }
 
