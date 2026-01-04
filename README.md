@@ -43,6 +43,7 @@ The project is functional and actively evolving. Future improvements may include
 * Simple AI
 * Graphical interface
 * An optional networked mode to support playing over a network
+* Consider additional draw conditions (insufficient material, fifty-move rule, threefold repetition)
 
 ## Build
 

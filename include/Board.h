@@ -60,6 +60,8 @@ public:
     bool isValidMove(const movement& m) const;
     bool isSquareAttacked(const int targetRow, const int targetColumn, PieceColor playerAttacked) const;
     bool isKingInCheck(PieceColor color) const;
+    bool isCheckMate(PieceColor color);
+    bool isStalemate(PieceColor color);
 
     std::vector<movement> getLegalMoves(int r, int c);
 

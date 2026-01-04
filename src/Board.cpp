@@ -501,6 +501,38 @@ bool Board::isKingInCheck(PieceColor color) const {
     return isSquareAttacked(k.row, k.col, oppositPlayer(color));
 }
 
+bool Board::isCheckMate(PieceColor color) {
+    if (!isKingInCheck(color))
+        return false;
+
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            const Piece* p = getPiece(r, c);
+            if (!p || p->getColor() != color) continue;
+
+            if (!getLegalMoves(r, c).empty())
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Board::isStalemate(PieceColor color) {
+    if (isKingInCheck(color))
+        return false;
+
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            const Piece* p = getPiece(r, c);
+            if (!p || p->getColor() != color) continue;
+
+            if (!getLegalMoves(r, c).empty())
+                return false;
+        }
+    }
+    return true;
+}
+
 std::vector<movement> Board::getLegalMoves(int r, int c) {
     const Piece * originPiece = getPiece(r, c);
     if(!originPiece) return {};
