@@ -70,5 +70,33 @@ std::vector<movement> King::pseudoLegalMoves(int r, int c, const Board& board) c
         moves.push_back(movement{r, c, nr, nc});
     }
 
+    // Castling (sin chequear ataques)
+    if (!this->hasMoved()) {
+        int homeRow = (color == PieceColor::white) ? 7 : 0;
+        if (r == homeRow && c == 4) {
+            // King side: rook en col 7, rey va a col 6
+            {
+                const Piece* rook = board.getPiece(homeRow, 7);
+                if (rook && rook->getType() == PieceType::Rook && rook->getColor() == color && !rook->hasMoved()) {
+                    // casillas entre rey y rook vacías (5 y 6)
+                    if (board.checkEmpty(homeRow, 5) && board.checkEmpty(homeRow, 6)) {
+                        moves.push_back(movement{r, c, homeRow, 6});
+                    }
+                }
+            }
+
+            // Queen side: rook en col 0, rey va a col 2
+            {
+                const Piece* rook = board.getPiece(homeRow, 0);
+                if (rook && rook->getType() == PieceType::Rook && rook->getColor() == color && !rook->hasMoved()) {
+                    // casillas entre rey y rook vacías (3,2,1)
+                    if (board.checkEmpty(homeRow, 3) && board.checkEmpty(homeRow, 2) && board.checkEmpty(homeRow, 1)) {
+                        moves.push_back(movement{r, c, homeRow, 2});
+                    }
+                }
+            }
+        }
+    }
+
     return moves;
 }
