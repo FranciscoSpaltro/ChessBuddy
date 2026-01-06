@@ -14,6 +14,14 @@
 #include "King.h"
 #include "Queen.h"
 
+enum class MoveResult {
+    Ok,
+    InvalidMovement,
+    EmptyOrigin,
+    LeavesOnCheck,
+    None
+};
+
 struct Position {
     int row;
     int col;
@@ -56,7 +64,7 @@ public:
 
     const EnPassantTarget * getEnPassantTarget(void) const;
 
-    bool move(const movement& m);
+    MoveResult move(const movement& m);
     bool isValidMove(const movement& m) const;
     bool isSquareAttacked(const int targetRow, const int targetColumn, PieceColor playerAttacked) const;
     bool isKingInCheck(PieceColor color) const;

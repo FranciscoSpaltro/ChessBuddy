@@ -28,6 +28,7 @@ class GuiApp {
         sf::Font font;
         sf::Text turnText;
         sf::Text statusText;
+        sf::Text turnNumberText;
 
         bool isInsideBoard(int mouseX, int mouseY);
 

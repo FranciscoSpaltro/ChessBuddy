@@ -58,6 +58,12 @@ bool GuiApp::initialize(void){
     statusText.setPosition(400.f, 10.f);
     statusText.setString("");
 
+    turnNumberText.setFont(font);
+    turnNumberText.setCharacterSize(20);
+    turnNumberText.setFillColor(sf::Color::Black);
+    turnNumberText.setPosition(150.f, 10.f);
+    turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
+
     if(!loadTexture(texturesPieces, "bP", "assets/bPawn.png")) return false;
     if(!loadTexture(texturesPieces, "wP", "assets/wPawn.png")) return false;
     if(!loadTexture(texturesPieces, "bR", "assets/bRook.png")) return false;
@@ -78,20 +84,17 @@ void GuiApp::render(){
     window.clear(sf::Color::White);
 
     turnText.setString(game.getCurrentPlayer() == PieceColor::white ? "Play: WHITE" : "Play: BLACK");
-
-    if(game.getBoard().isCheckMate(game.getCurrentPlayer())){
-        statusText.setString("CHECK MATE!");
-    } else if(game.getBoard().isKingInCheck(game.getCurrentPlayer())){
-        statusText.setString("CHECK!");
-    } else {
-        statusText.setString("PLAY!");
-    }
+    statusText.setString(game.getGameMessage());
+    turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
 
     // dibujar tablero y piezas
     std::vector<movement> legalMoves;
-    if(selected){
-        legalMoves = game.getBoard().getLegalMoves(selected->row, selected->col);
-    } 
+    if (selected) {
+        const Piece* p = game.getBoard().getPiece(selected->row, selected->col);
+        if (p && p->getColor() == game.getCurrentPlayer()) {
+            legalMoves = game.getBoard().getLegalMoves(selected->row, selected->col);
+        }
+    }
 
     std::set<std::pair<int,int>> destinations;
 
@@ -165,6 +168,7 @@ void GuiApp::render(){
 
     window.draw(turnText);
     window.draw(statusText);
+    window.draw(turnNumberText);
     window.display();
 }
 
@@ -175,11 +179,17 @@ void GuiApp::handleClick(int mouseX, int mouseY){
     }
         
     bool status = false;
+    bool attemptMove = false;
 
     Square s{static_cast<int>((mouseY - offset) / tileSize), static_cast<int>(mouseX / tileSize)};
 
     if(!selected){  // Si selected esta vacio
         selected = s;
+        bool checkOrigin = game.checkOrigin(Position{s.row, s.col});
+        if(!checkOrigin){
+            statusText.setString(game.getGameMessage());
+            selected.reset();
+        }
     } else {
         if(s.row == selected -> row && s.col == selected -> col){    // apreté de nuevo la misma pieza
             selected.reset();
@@ -187,12 +197,15 @@ void GuiApp::handleClick(int mouseX, int mouseY){
             movement m{selected->row, selected->col, s.row, s.col};
             status = game.play(m);
             selected.reset();
+            attemptMove = true;
         }
     }
 
-    if(!status){
-        statusText.setString("Invalid Move");
+    if(attemptMove && !status){
+        statusText.setString(game.getGameMessage());
     }
+
+    attemptMove = false;
 }
 
 void GuiApp::processEvents(){

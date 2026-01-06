@@ -199,16 +199,16 @@ void Board::printBoard() const {
 }
 
 
-bool Board::move(const movement& m) {
+MoveResult Board::move(const movement& m) {
     Piece * originPiece = board[index(m.fromRow, m.fromColumn)].get();
     if(originPiece == nullptr)
-        return false;
+        return MoveResult::EmptyOrigin;
 
     PieceColor color = originPiece->getColor();
     SpecialMove sm = originPiece->getSpecialMove(m);
 
     if (!isValidMove(m)){
-        return false;
+        return MoveResult::InvalidMovement;
     }
 
     if(isEnPassantMove(m)){
@@ -220,12 +220,12 @@ bool Board::move(const movement& m) {
             undoMove(r);
             board[index(m.toRow + directionOpposite, m.toColumn)] = std::move(capturedPawn);
             resetEPStatus();
-            return false;
+            return MoveResult::LeavesOnCheck;
         }
         
         resetEPStatus();
         board[index(m.toRow, m.toColumn)]->setMoved(true);
-        return true;
+        return MoveResult::Ok;
     }
 
     resetEPStatus();
@@ -249,13 +249,13 @@ bool Board::move(const movement& m) {
             if(isKingInCheck(color)){
                 undoMove(rRook);
                 undoMove(rKing);
-                return false;
+                return MoveResult::LeavesOnCheck;
             }
 
             board[index(m.toRow, m.toColumn)] -> setMoved(true);
             board[index(row, rookToCol)] -> setMoved(true);
             
-            return true;
+            return MoveResult::Ok;
         }
 
         case SpecialMove::Promotion:{
@@ -263,11 +263,11 @@ bool Board::move(const movement& m) {
 
             if(isKingInCheck(color)){
                 undoMove(r);
-                return false;
+                return MoveResult::LeavesOnCheck;
             }
 
             board[index(m.toRow, m.toColumn)] = std::make_unique<Queen>(color);
-            return true;
+            return MoveResult::Ok;
         }
 
         default:
@@ -277,7 +277,7 @@ bool Board::move(const movement& m) {
     MoveRecord r = applyMove(m);
     if(isKingInCheck(color)){
         undoMove(r);
-        return false;
+        return MoveResult::LeavesOnCheck;
     }
 
     if (board[index(m.toRow, m.toColumn)].get()->getType() == PieceType::Pawn) {
@@ -291,7 +291,7 @@ bool Board::move(const movement& m) {
 
     board[index(m.toRow, m.toColumn)]->setMoved(true);
 
-    return true;
+    return MoveResult::Ok;
 }
 
 // Detecta obstaculos en caminos horizontales, verticales y diagonales
