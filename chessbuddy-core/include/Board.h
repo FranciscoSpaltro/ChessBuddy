@@ -19,6 +19,8 @@ enum class MoveResult {
     InvalidMovement,
     EmptyOrigin,
     LeavesOnCheck,
+    PromotionRequested,
+    KingInCheck,
     None
 };
 
@@ -44,6 +46,8 @@ class Board {
 private:
     std::array<std::unique_ptr<Piece>, 64> board;
     struct EnPassantTarget ep;
+    bool promotionRequested = false;
+    Position promotionPosition{-1, -1};
 
     int index(int row, int column) const;
     void initialize();
@@ -70,8 +74,10 @@ public:
     bool isKingInCheck(PieceColor color) const;
     bool isCheckMate(PieceColor color);
     bool isStalemate(PieceColor color);
+    bool isPromotionRequested(void);
 
     std::vector<movement> getLegalMoves(int r, int c);
+    void makePromotion(PieceType piece);
 
     void printBoard() const;
 };

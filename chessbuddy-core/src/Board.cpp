@@ -266,8 +266,11 @@ MoveResult Board::move(const movement& m) {
                 return MoveResult::LeavesOnCheck;
             }
 
-            board[index(m.toRow, m.toColumn)] = std::make_unique<Queen>(color);
-            return MoveResult::Ok;
+            promotionRequested = true;
+            promotionPosition = {m.toRow, m.toColumn};
+
+            //board[index(m.toRow, m.toColumn)] = std::make_unique<Queen>(color);
+            return MoveResult::PromotionRequested;
         }
 
         default:
@@ -292,6 +295,28 @@ MoveResult Board::move(const movement& m) {
     board[index(m.toRow, m.toColumn)]->setMoved(true);
 
     return MoveResult::Ok;
+}
+
+void Board::makePromotion(PieceType piece){
+    if(!promotionRequested || promotionPosition.row < 0 || promotionPosition.row >= 8 || promotionPosition.col < 0 || promotionPosition.col >= 8){
+        promotionRequested = false;
+        promotionPosition = {-1, -1};
+        return;
+    }
+
+    PieceColor color = getPiece(promotionPosition.row, promotionPosition.col) -> getColor();
+
+    if(piece == PieceType::Bishop)
+        board[index(promotionPosition.row, promotionPosition.col)] = std::make_unique<Bishop>(color);
+    else if(piece == PieceType::Rook)
+        board[index(promotionPosition.row, promotionPosition.col)] = std::make_unique<Rook>(color);
+    else if(piece == PieceType::Knight)
+        board[index(promotionPosition.row, promotionPosition.col)] = std::make_unique<Knight>(color);
+    else
+        board[index(promotionPosition.row, promotionPosition.col)] = std::make_unique<Queen>(color);
+
+    promotionRequested = false;
+    promotionPosition = {-1, -1};
 }
 
 // Detecta obstaculos en caminos horizontales, verticales y diagonales
@@ -549,4 +574,8 @@ std::vector<movement> Board::getLegalMoves(int r, int c) {
     }
 
     return legalMoves;
+}
+
+bool Board::isPromotionRequested(void){
+    return promotionRequested;
 }

@@ -19,6 +19,8 @@ struct Square {
     int col;
 };
 
+
+
 class GuiApp {
     private:
         Game game;
@@ -29,8 +31,14 @@ class GuiApp {
         sf::Text turnText;
         sf::Text statusText;
         sf::Text turnNumberText;
+        std::array<sf::FloatRect, 4> promoHit;
+        std::array<sf::Sprite, 4>    promoSprite;
+        bool promotionMode = false;
 
         bool isInsideBoard(int mouseX, int mouseY);
+        bool pickPromotion(int mouseX, int mouseY, PieceType& chosen);
+        void openPromotionMenu(void);
+        void drawPromotionOverlay();
 
     public:
         GuiApp() : window(sf::VideoMode(windowSize, windowSize + offset), "ChessBuddy"){}

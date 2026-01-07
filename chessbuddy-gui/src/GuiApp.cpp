@@ -5,6 +5,7 @@ int offset = 40;
 const int boardSize = 8;
 const float tileSize = windowSize / static_cast<float>(boardSize);
 
+
 bool loadTexture(std::map<std::string, sf::Texture>& textures, const std::string& key, const std::string& path){
     sf::Texture tex;
     if (!tex.loadFromFile(path)) {
@@ -35,9 +36,8 @@ std::string textureKey(PieceColor c, PieceType t)
 /* *************************************************************************************************** */
 
 bool GuiApp::isInsideBoard(int mouseX, int mouseY){
-    if(mouseY < offset)
-        return false;
-
+    if (mouseX < 0 || mouseX >= windowSize) return false;
+    if (mouseY < offset || mouseY >= offset + windowSize) return false;
     return true;
 }
 
@@ -166,6 +166,10 @@ void GuiApp::render(){
         window.draw(line);
     }
 
+    if (game.isPromotionRequested()) {
+        drawPromotionOverlay();
+    }
+
     window.draw(turnText);
     window.draw(statusText);
     window.draw(turnNumberText);
@@ -177,7 +181,18 @@ void GuiApp::handleClick(int mouseX, int mouseY){
         statusText.setString("Invalid Click");
         return;
     }
-        
+    
+    if(game.isPromotionRequested()){
+        PieceType chosen;
+        if(pickPromotion(mouseX, mouseY, chosen)){
+            game.makePromotion(chosen);
+        }
+
+        promotionMode = false;
+
+        return;
+    }
+
     bool status = false;
     bool attemptMove = false;
 
@@ -201,11 +216,23 @@ void GuiApp::handleClick(int mouseX, int mouseY){
         }
     }
 
+    if(status && game.isPromotionRequested()){
+        openPromotionMenu();
+        return;
+    }
+
     if(attemptMove && !status){
         statusText.setString(game.getGameMessage());
     }
 
     attemptMove = false;
+
+    if (game.isKingInCheck()){
+        statusText.setString("King in check!");
+    } else if(game.isCheckMate() || game.isStaleMate()){
+        statusText.setString(game.getGameMessage());
+        
+    }
 }
 
 void GuiApp::processEvents(){
@@ -236,4 +263,69 @@ int GuiApp::run() {
     }
     
     return 0;
+}
+
+bool GuiApp::pickPromotion(int mouseX, int mouseY, PieceType& chosen){
+    sf::Vector2f p((float)mouseX, (float)mouseY);
+
+    if (promoHit[0].contains(p)) { chosen = PieceType::Queen;  return true; }
+    if (promoHit[1].contains(p)) { chosen = PieceType::Rook;   return true; }
+    if (promoHit[2].contains(p)) { chosen = PieceType::Bishop; return true; }
+    if (promoHit[3].contains(p)) { chosen = PieceType::Knight; return true; }
+
+    return false;
+}
+
+void GuiApp::openPromotionMenu(void){
+    // Panel 4x1 centrado sobre el tablero
+    float boardPx = boardSize * tileSize;
+    float x0 = (boardPx - 4.f * tileSize) / 2.f;
+    float y0 = offset + (boardPx - 1.f * tileSize) / 2.f;
+
+    const PieceType opts[4] = {
+        PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        // hitbox
+        promoHit[i] = sf::FloatRect(x0 + i*tileSize, y0, tileSize, tileSize);
+
+        // sprite
+        std::string key = textureKey(game.getPromotionColor(), opts[i]);
+        auto it = texturesPieces.find(key);
+        if (it == texturesPieces.end()) continue;
+
+        promoSprite[i].setTexture(it->second);
+
+        sf::Vector2u sz = it->second.getSize();
+        if (sz.x == 0 || sz.y == 0) continue;
+
+        promoSprite[i].setScale(tileSize / sz.x, tileSize / sz.y);
+        promoSprite[i].setPosition(x0 + i*tileSize, y0);
+    }
+
+    statusText.setString("Choose promotion: Q R B N");
+}
+
+void GuiApp::drawPromotionOverlay(){
+    // oscurecer fondo
+    sf::RectangleShape dim(sf::Vector2f((float)window.getSize().x, (float)window.getSize().y));
+    dim.setFillColor(sf::Color(0, 0, 0, 140));
+    window.draw(dim);
+
+    // panel detrás (opcional pero queda mucho más claro)
+    float boardPx = boardSize * tileSize;
+    float x0 = (boardPx - 4.f * tileSize) / 2.f;
+    float y0 = offset + (boardPx - 1.f * tileSize) / 2.f;
+
+    sf::RectangleShape panel;
+    panel.setPosition(x0 - 8.f, y0 - 8.f);
+    panel.setSize(sf::Vector2f(4.f * tileSize + 16.f, tileSize + 16.f));
+    panel.setFillColor(sf::Color(30, 30, 30, 220));
+    window.draw(panel);
+
+    // dibujar sprites de opciones
+    for (int i = 0; i < 4; ++i) {
+        window.draw(promoSprite[i]);
+    }
 }

@@ -18,7 +18,11 @@ enum class GameResult {
 struct GameStatus {
     GameResult gr = GameResult::Init;
     MoveResult mr = MoveResult::None;
-    int turnNumber = 0;
+};
+
+struct PromotionStatus {
+    bool mode = false;
+    PieceColor color;
 };
 
 class Game {
@@ -26,6 +30,8 @@ private:
     Board board;
     PieceColor currentPlayer;
     GameStatus gameStatus;
+    PromotionStatus promotionStatus;
+    int turnNumber = 0;
 
 public:
     Game();
@@ -37,6 +43,12 @@ public:
     std::string getGameMessage(void) const;
     int getTurnNumber(void) const;
     bool checkOrigin(const Position& pos);
+    bool isPromotionRequested(void);
+    void makePromotion(PieceType piece);
+    PieceColor getPromotionColor(void);
+    bool isKingInCheck(void);
+    bool isCheckMate(void);
+    bool isStaleMate(void);
 };
 
 
