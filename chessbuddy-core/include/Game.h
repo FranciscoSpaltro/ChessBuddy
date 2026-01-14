@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include "Board.h"
-#include "piece.h"
+#include "Piece.h"
 #include "movement.h"
 
 enum class GameResult {

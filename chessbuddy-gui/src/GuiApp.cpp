@@ -43,111 +43,127 @@ bool GuiApp::isInsideBoard(int mouseX, int mouseY){
 
 /* *************************************************************************************************** */
 bool GuiApp::initialize(void){    
-    if (!font.loadFromFile("assets/DejaVuSans.ttf"))
+    if (!graphic.font.loadFromFile("assets/DejaVuSans.ttf"))
         return false;
 
-    turnText.setFont(font);
-    turnText.setCharacterSize(20);
-    turnText.setFillColor(sf::Color::Black);
-    turnText.setPosition(10.f, 10.f);
-    turnText.setString("Play: WHITE");
+    graphic.turnText.setFont(graphic.font);
+    graphic.turnText.setCharacterSize(20);
+    graphic.turnText.setFillColor(sf::Color::Black);
+    graphic.turnText.setPosition(10.f, 10.f);
+    graphic.turnText.setString("Play: WHITE");
 
-    statusText.setFont(font);
-    statusText.setCharacterSize(20);
-    statusText.setFillColor(sf::Color::Black);
-    statusText.setPosition(400.f, 10.f);
-    statusText.setString("");
+    graphic.statusText.setFont(graphic.font);
+    graphic.statusText.setCharacterSize(20);
+    graphic.statusText.setFillColor(sf::Color::Black);
+    graphic.statusText.setPosition(400.f, 10.f);
+    graphic.statusText.setString("");
 
-    turnNumberText.setFont(font);
-    turnNumberText.setCharacterSize(20);
-    turnNumberText.setFillColor(sf::Color::Black);
-    turnNumberText.setPosition(150.f, 10.f);
-    turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
+    graphic.turnNumberText.setFont(graphic.font);
+    graphic.turnNumberText.setCharacterSize(20);
+    graphic.turnNumberText.setFillColor(sf::Color::Black);
+    graphic.turnNumberText.setPosition(150.f, 10.f);
+    graphic.turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
 
-    if(!loadTexture(texturesPieces, "bP", "assets/bPawn.png")) return false;
-    if(!loadTexture(texturesPieces, "wP", "assets/wPawn.png")) return false;
-    if(!loadTexture(texturesPieces, "bR", "assets/bRook.png")) return false;
-    if(!loadTexture(texturesPieces, "wR", "assets/wRook.png")) return false;
-    if(!loadTexture(texturesPieces, "bN", "assets/bKnight.png")) return false;
-    if(!loadTexture(texturesPieces, "wN", "assets/wKnight.png")) return false;
-    if(!loadTexture(texturesPieces, "bB", "assets/bBishop.png")) return false;
-    if(!loadTexture(texturesPieces, "wB", "assets/wBishop.png")) return false;
-    if(!loadTexture(texturesPieces, "bQ", "assets/bQueen.png")) return false;
-    if(!loadTexture(texturesPieces, "wQ", "assets/wQueen.png")) return false;
-    if(!loadTexture(texturesPieces, "bK", "assets/bKing.png")) return false;
-    if(!loadTexture(texturesPieces, "wK", "assets/wKing.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bP", "assets/bPawn.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wP", "assets/wPawn.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bR", "assets/bRook.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wR", "assets/wRook.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bN", "assets/bKnight.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wN", "assets/wKnight.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bB", "assets/bBishop.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wB", "assets/wBishop.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bQ", "assets/bQueen.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wQ", "assets/wQueen.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "bK", "assets/bKing.png")) return false;
+    if(!loadTexture(graphic.texturesPieces, "wK", "assets/wKing.png")) return false;
 
     return true;
 }
 
-void GuiApp::render(){
-    window.clear(sf::Color::White);
+void GuiApp::handleInputPlaying(int mouseX, int mouseY){
+    
+}
 
-    turnText.setString(game.getCurrentPlayer() == PieceColor::white ? "Play: WHITE" : "Play: BLACK");
-    statusText.setString(game.getGameMessage());
-    turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
+void GuiApp::render(){
+    graphic.window.clear(sf::Color::White);
+
+    graphic.turnText.setString(game.getCurrentPlayer() == PieceColor::white ? "Play: WHITE" : "Play: BLACK");
+    graphic.statusText.setString(game.getGameMessage());
+    graphic.turnNumberText.setString("TURN " + std::to_string(game.getTurnNumber()));
 
     // dibujar tablero y piezas
     std::vector<movement> legalMoves;
-    if (selected) {
-        const Piece* p = game.getBoard().getPiece(selected->row, selected->col);
+    if (graphic.selected) {
+        const Piece* p = game.getBoard().getPiece(graphic.selected->row, graphic.selected->col);
         if (p && p->getColor() == game.getCurrentPlayer()) {
-            legalMoves = game.getBoard().getLegalMoves(selected->row, selected->col);
+            legalMoves = game.getBoard().getLegalMoves(graphic.selected->row, graphic.selected->col);
         }
     }
 
     std::set<std::pair<int,int>> destinations;
 
-    if (selected) {
+    // Abajo se van a dibujar 64 casillas. Si usara directamente legalMoves, por cada casilla tendrías que recorrer todo el vector para ver si hay que pintarla de rojo. Con el set, la búsqueda es instantánea (destinations.count({row, col}) encuentra las ocurrencias)
+    if (graphic.selected) {
         for (const auto& m : legalMoves) {
             destinations.insert({m.toRow, m.toColumn}); // Para no recorrer todo legalMoves en cada casilla (doble for)
         }
     }
 
+
+    // ITERACIÓN SOBRE CADA CASILLA
     for (int row = 0; row < boardSize; ++row) {
         for (int col = 0; col < boardSize; ++col) {
 
-            sf::RectangleShape square(sf::Vector2f(tileSize, tileSize));
-            square.setPosition(col * tileSize, row * tileSize + offset);
+            sf::RectangleShape square(sf::Vector2f(tileSize, tileSize));    // Crea un cuadrado tamaño titleSize
+            square.setPosition(col * tileSize, row * tileSize + offset);    // Lo ubica en la columna y fila correspondiente
 
-            bool dark = (row + col) % 2;
+            bool dark = (row + col) % 2;                                    // Si fila + columna es par -> blanco
             sf::Color base = dark ? sf::Color(110,110,110) : sf::Color(230,230,230);
 
+            // RESALTADO (COLOREADO LÓGICO)
             bool isDest = false;
-            if(selected){
+            if(graphic.selected){
                 isDest = destinations.count({row, col}) > 0;
             }
 
-            if (selected && row == selected->row && col == selected->col) {
+            // Si se seleccionó previamente una pieza y la (row,col) es la pieza que seleccioné -> amarillo
+            if (graphic.selected && row == graphic.selected->row && col == graphic.selected->col) {
                 base = sf::Color(255, 255, 150); // amarillo claro
             } else if(isDest){
+                // Si no es la pieza que seleccioné pero tiene un destino válido -> rojo
                 base = sf::Color(255, 0, 0);
             }
             
+            // Dibuja el cuadrado
             square.setFillColor(base);
-            window.draw(square);
+            graphic.window.draw(square);
 
+            // DIBUJO DE LA PIEZA
             const Piece* p = game.getBoard().getPiece(row, col);
-            if (!p) continue;
+            if (!p) continue;   // Si no hay ninguna pieza en esa (row,col), nada más que hacer
 
+            // Busco la textura correspondiente al tipo y color de pieza que hay en (row,col)
             std::string key = textureKey(p->getColor(), p->getType());
+            auto it = graphic.texturesPieces.find(key);
+            if (it == graphic.texturesPieces.end())
+                continue;   // Si no encontré la textura, nada más que hacer
 
-            auto it = texturesPieces.find(key);
-            if (it == texturesPieces.end())
-                continue;
-
+            // Creo el Sprite (imagen visual)
             sf::Sprite sprite(it->second);
 
             sf::Vector2u sz = it->second.getSize();
             if (sz.x == 0 || sz.y == 0)
                 continue;
 
+            // Escalo, posiciono y dibujo el Sprite
             sprite.setScale(float(tileSize) / sz.x, float(tileSize) / sz.y);
             sprite.setPosition(col * tileSize, row * tileSize + offset);
-            window.draw(sprite);
+            graphic.window.draw(sprite);
         }
     }
 
+
+    // DIBUJOS ADICIONALES (LINEAS)
     const float boardPx = boardSize * tileSize;
 
     // Líneas verticales
@@ -155,7 +171,7 @@ void GuiApp::render(){
         sf::RectangleShape line(sf::Vector2f(2.f, boardPx));
         line.setFillColor(sf::Color::Black);
         line.setPosition(i * tileSize - 2.f * 0.5f, offset);
-        window.draw(line);
+        graphic.window.draw(line);
     }
 
     // Líneas horizontales
@@ -163,22 +179,24 @@ void GuiApp::render(){
         sf::RectangleShape line(sf::Vector2f(boardPx, 2.f));
         line.setFillColor(sf::Color::Black);
         line.setPosition(0.f, offset + i * tileSize - 2.f * 0.5f);
-        window.draw(line);
+        graphic.window.draw(line);
     }
 
+    // PROMOCION
     if (game.isPromotionRequested()) {
         drawPromotionOverlay();
     }
 
-    window.draw(turnText);
-    window.draw(statusText);
-    window.draw(turnNumberText);
-    window.display();
+    // DIBUJO LAS COSAS
+    graphic.window.draw(graphic.turnText);
+    graphic.window.draw(graphic.statusText);
+    graphic.window.draw(graphic.turnNumberText);
+    graphic.window.display();
 }
 
 void GuiApp::handleClick(int mouseX, int mouseY){
     if(!isInsideBoard(mouseX, mouseY)){
-        statusText.setString("Invalid Click");
+        graphic.statusText.setString("Invalid Click");
         return;
     }
     
@@ -198,20 +216,20 @@ void GuiApp::handleClick(int mouseX, int mouseY){
 
     Square s{static_cast<int>((mouseY - offset) / tileSize), static_cast<int>(mouseX / tileSize)};
 
-    if(!selected){  // Si selected esta vacio
-        selected = s;
+    if(!graphic.selected){  // Si selected esta vacio
+        graphic.selected = s;
         bool checkOrigin = game.checkOrigin(Position{s.row, s.col});
         if(!checkOrigin){
-            statusText.setString(game.getGameMessage());
-            selected.reset();
+            graphic.statusText.setString(game.getGameMessage());
+            graphic.selected.reset();
         }
     } else {
-        if(s.row == selected -> row && s.col == selected -> col){    // apreté de nuevo la misma pieza
-            selected.reset();
+        if(s.row == graphic.selected -> row && s.col == graphic.selected -> col){    // apreté de nuevo la misma pieza
+            graphic.selected.reset();
         } else {
-            movement m{selected->row, selected->col, s.row, s.col};
+            movement m{graphic.selected->row, graphic.selected->col, s.row, s.col};
             status = game.play(m);
-            selected.reset();
+            graphic.selected.reset();
             attemptMove = true;
         }
     }
@@ -222,15 +240,15 @@ void GuiApp::handleClick(int mouseX, int mouseY){
     }
 
     if(attemptMove && !status){
-        statusText.setString(game.getGameMessage());
+        graphic.statusText.setString(game.getGameMessage());
     }
 
     attemptMove = false;
 
     if (game.isKingInCheck()){
-        statusText.setString("King in check!");
+        graphic.statusText.setString("King in check!");
     } else if(game.isCheckMate() || game.isStaleMate()){
-        statusText.setString(game.getGameMessage());
+        graphic.statusText.setString(game.getGameMessage());
         
     }
 }
@@ -238,10 +256,10 @@ void GuiApp::handleClick(int mouseX, int mouseY){
 void GuiApp::processEvents(){
     sf::Event event;
     
-    while (window.pollEvent(event)) {
+    while (graphic.window.pollEvent(event)) {
 
         if (event.type == sf::Event::Closed) {
-            window.close();
+            graphic.window.close();
             continue;
         }
 
@@ -257,7 +275,7 @@ int GuiApp::run() {
     if (!initialize())
         return 1;
 
-    while (window.isOpen()) {
+    while (graphic.window.isOpen()) {
         processEvents();
         render();
     }
@@ -268,10 +286,10 @@ int GuiApp::run() {
 bool GuiApp::pickPromotion(int mouseX, int mouseY, PieceType& chosen){
     sf::Vector2f p((float)mouseX, (float)mouseY);
 
-    if (promoHit[0].contains(p)) { chosen = PieceType::Queen;  return true; }
-    if (promoHit[1].contains(p)) { chosen = PieceType::Rook;   return true; }
-    if (promoHit[2].contains(p)) { chosen = PieceType::Bishop; return true; }
-    if (promoHit[3].contains(p)) { chosen = PieceType::Knight; return true; }
+    if (graphic.promoHit[0].contains(p)) { chosen = PieceType::Queen;  return true; }
+    if (graphic.promoHit[1].contains(p)) { chosen = PieceType::Rook;   return true; }
+    if (graphic.promoHit[2].contains(p)) { chosen = PieceType::Bishop; return true; }
+    if (graphic.promoHit[3].contains(p)) { chosen = PieceType::Knight; return true; }
 
     return false;
 }
@@ -288,30 +306,30 @@ void GuiApp::openPromotionMenu(void){
 
     for (int i = 0; i < 4; ++i) {
         // hitbox
-        promoHit[i] = sf::FloatRect(x0 + i*tileSize, y0, tileSize, tileSize);
+        graphic.promoHit[i] = sf::FloatRect(x0 + i*tileSize, y0, tileSize, tileSize);
 
         // sprite
         std::string key = textureKey(game.getPromotionColor(), opts[i]);
-        auto it = texturesPieces.find(key);
-        if (it == texturesPieces.end()) continue;
+        auto it = graphic.texturesPieces.find(key);
+        if (it == graphic.texturesPieces.end()) continue;
 
-        promoSprite[i].setTexture(it->second);
+        graphic.promoSprite[i].setTexture(it->second);
 
         sf::Vector2u sz = it->second.getSize();
         if (sz.x == 0 || sz.y == 0) continue;
 
-        promoSprite[i].setScale(tileSize / sz.x, tileSize / sz.y);
-        promoSprite[i].setPosition(x0 + i*tileSize, y0);
+        graphic.promoSprite[i].setScale(tileSize / sz.x, tileSize / sz.y);
+        graphic.promoSprite[i].setPosition(x0 + i*tileSize, y0);
     }
 
-    statusText.setString("Choose promotion: Q R B N");
+    graphic.statusText.setString("Choose promotion: Q R B N");
 }
 
 void GuiApp::drawPromotionOverlay(){
     // oscurecer fondo
-    sf::RectangleShape dim(sf::Vector2f((float)window.getSize().x, (float)window.getSize().y));
+    sf::RectangleShape dim(sf::Vector2f((float)graphic.window.getSize().x, (float)graphic.window.getSize().y));
     dim.setFillColor(sf::Color(0, 0, 0, 140));
-    window.draw(dim);
+    graphic.window.draw(dim);
 
     // panel detrás (opcional pero queda mucho más claro)
     float boardPx = boardSize * tileSize;
@@ -322,10 +340,10 @@ void GuiApp::drawPromotionOverlay(){
     panel.setPosition(x0 - 8.f, y0 - 8.f);
     panel.setSize(sf::Vector2f(4.f * tileSize + 16.f, tileSize + 16.f));
     panel.setFillColor(sf::Color(30, 30, 30, 220));
-    window.draw(panel);
+    graphic.window.draw(panel);
 
     // dibujar sprites de opciones
     for (int i = 0; i < 4; ++i) {
-        window.draw(promoSprite[i]);
+        graphic.window.draw(graphic.promoSprite[i]);
     }
 }
