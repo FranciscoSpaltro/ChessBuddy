@@ -5,7 +5,7 @@ Rook::Rook(PieceColor color) : Piece(color) {
     type = PieceType::Rook;
 }
 
-bool Rook::isValidMove(const Board& board, const movement& move) const {
+bool Rook::isValidMove(const Board& /*board*/, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
     int deltaRow = move.toRow - move.fromRow;

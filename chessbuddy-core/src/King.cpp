@@ -5,7 +5,7 @@ King::King(PieceColor color) : Piece(color) {
     type = PieceType::King;
 }
 
-bool King::isValidMove(const Board& board, const movement& move) const {
+bool King::isValidMove(const Board& /*board*/, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
     // La validacion de si el rey queda en jaque la hace Game
     // Tampoco implemento enroque aca

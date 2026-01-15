@@ -5,7 +5,7 @@ Knight::Knight(PieceColor color) : Piece(color) {
     type = PieceType::Knight;
 }
 
-bool Knight::isValidMove(const Board& board, const movement& move) const {
+bool Knight::isValidMove(const Board& /*board*/, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
     int deltaRow = move.toRow - move.fromRow;

@@ -15,7 +15,7 @@ const EnPassantTarget * Board::getEnPassantTarget(void) const{
 }
 
 MoveRecord Board::applyMove(const movement& m){
-    MoveRecord r{m.fromRow, m.fromColumn, m.toRow, m.toColumn};
+    MoveRecord r{m.fromRow, m.fromColumn, m.toRow, m.toColumn, nullptr};
     
     r.captured = std::move(board[index(m.toRow, m.toColumn)]);
 

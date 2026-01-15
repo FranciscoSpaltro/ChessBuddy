@@ -5,7 +5,7 @@ Queen::Queen(PieceColor color) : Piece(color) {
     type = PieceType::Queen;
 }
 
-bool Queen::isValidMove(const Board& board, const movement& move) const {
+bool Queen::isValidMove(const Board& /*board*/, const movement& move) const {
     // Las validaciones de vacio origen no corresponde a la pieza
 
     int deltaRow = move.toRow - move.fromRow;

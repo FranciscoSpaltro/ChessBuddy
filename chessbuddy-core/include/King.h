@@ -8,7 +8,7 @@ class King : public Piece {
 public:
     explicit King(PieceColor color);
 
-    bool isValidMove(const Board& board, const movement& move) const override;
+    bool isValidMove(const Board& /*board*/, const movement& move) const override;
 
     char symbol() const override;
 

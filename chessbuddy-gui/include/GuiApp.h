@@ -41,7 +41,6 @@ class GuiApp {
     private:
         Game game;
         graphicElements graphic;
-        bool promotionMode = false;
         GuiState state = GuiState::Playing;
 
         bool isInsideBoard(int mouseX, int mouseY);
@@ -49,11 +48,19 @@ class GuiApp {
         void openPromotionMenu(void);
         void drawPromotionOverlay();
 
+        void handleInputPlaying(int mouseX, int mouseY);
+        void handleInputPromoting(int mouseX, int mouseY);
+        void handleInputGameOver();
+
+        std::set<std::pair<int,int>> calculateHighlights(); // Calcula casillas rojas/amarillas
+        void updateUITexts();        // Actualiza strings de textos
+        void drawBoardSquares(const std::set<std::pair<int,int>>& destinations); // Dibuja fondo
+        void drawPieces();           // Dibuja los sprites
+        void drawGrid();             // Dibuja las líneas negras
+
     public:
         bool initialize();
         void render();
-        void handleClick(int mouseX, int mouseY);
-        void handleInputPlaying(int mouseX, int mouseY);
         void processEvents();
         int run();
 };
